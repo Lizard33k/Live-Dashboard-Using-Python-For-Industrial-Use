@@ -1,0 +1,63 @@
+DECLARE @Date varchar(80);
+DECLARE @Date2 varchar(80);
+DECLARE @StartDate varchar(80);
+SET @StartDate = DATEPART(HOUR, getdate());
+SET @Date2= convert(varchar, getdate(), 120)
+
+  IF @StartDate >= 6 and @StartDate<14
+    BEGIN
+	SET @Date = convert(varchar(10),getdate(),23)+' 06:00:00.000';
+        PRINT @Date;
+    END
+	  IF @StartDate >= 14 and @StartDate<22
+    BEGIN
+	SET @Date = convert(varchar(10),23)+' 14:00:00.000';
+        PRINT @Date;
+    END
+
+IF @StartDate>= 22 
+BEGIN
+SET @Date = convert(varchar(10),getdate(),23)+' 22:00:00.000';
+SET @Date2= Dateadd(hour,3,getdate());
+        PRINT @Date;
+END
+
+IF @StartDate>0 and @StartDate<6 
+    BEGIN
+	SET @Date = convert(varchar(10),Dateadd(day,-1,getdate()),23)+' 22:00:00.000';
+SET @Date2= Dateadd(hour,8,getdate());
+        PRINT @Date;
+    END
+
+
+
+SELECT [DateAndTime],
+ sum(case when TagIndex=3 Then Val end) as Stamper_Present_Speed,
+ sum(case when TagIndex=45 Then Val end) as Stamper_In_Run_mode,
+ sum(case when TagIndex=46 Then Val end) as Stamper_Stop_By_Push_Button,
+
+sum(case when TagIndex=48 Then Val end) as Bosch_01_Running,
+sum(case when TagIndex=53 Then Val end) as Bosch_01_Stop_By_Push_Button ,
+sum(case when TagIndex=54 Then Val end) as Bosch_01_Actual_speed ,
+
+sum(case when TagIndex=66 Then Val end) as BOSCH_2_Speed,
+sum(case when TagIndex=68 Then Val end) as BOSCH_2_Running,
+sum(case when TagIndex=69 Then Val end) as BOSCH_2_Manual_Stop_Time,
+
+sum(case when TagIndex=55 Then Val end) as CPM_1_Running ,
+sum(case when TagIndex=56 Then Val end) as CPM_1_Actual_Speed,
+sum(case when TagIndex=57 Then Val end) as FBC_Produced_01,
+sum(case when TagIndex=98 Then Val end) as CPM_1_Manual_Stop_Count,
+sum(case when TagIndex=101 Then Val end) as CPM_1_Manual_Stop_Time,
+
+
+sum(case when TagIndex=77 Then Val end) as CPM_2_Running ,
+sum(case when TagIndex=82 Then Val end) as CPM_2_Actual_Speed,
+sum(case when TagIndex=99 Then Val end) as CPM_2_Manual_Stop_Count,
+sum(case when TagIndex=100 Then Val end) as CPM_2_Manual_Stop_Time,
+sum(case when TagIndex=72 Then Val end) as FBC_Produced_02
+
+FROM [DFOS_Local].[dbo].[FloatTable]
+where dateandtime between @Date and @Date2
+group by DateAndTime
+order by DateAndTime desc

@@ -1,0 +1,53 @@
+DECLARE @Date varchar(80);
+DECLARE @StartDate varchar(80);
+DECLARE @Date2 varchar(80);
+SET @StartDate = DATEPART(HOUR, @pDate);
+  IF @shift='A'
+    BEGIN
+	SET @Date = convert(varchar(10),@pDate,23)+' 13:55:00.000';
+        PRINT @Date;
+    END
+	  IF @shift='B'
+    BEGIN
+	SET @Date = convert(varchar(10),@pDate,23)+' 21:55:00.000';
+        PRINT @Date;
+    END
+
+		  IF @shift='C'
+    BEGIN
+	SET @Date = convert(varchar(11), dateadd(day,1, convert(varchar(10),getdate(),23)),23)+' 05:55:00.000';
+        PRINT @Date;
+    END
+SET @Date2= dateadd(minute,2, @Date);
+
+SELECT TOP (5) [DateAndTime],
+
+      CAST(DateAndTime AS DATE) AS Date,
+ CONVERT(varchar(12),DateAndTime, 108) AS Time ,
+ CASE
+ when TagIndex=	62	Then 'Emergency_press_time'
+ when TagIndex=	102	Then'Front_door_time'
+ when TagIndex=	103	Then 'Safety_interlock_alarm_time'
+ when TagIndex=	104	Then 'Incomming_conveyor1_trip_time'
+when TagIndex=	105	Then 'Incomming_conveyor2_trip_time'
+ when TagIndex=	106	Then 'Arm_VFD_trip_time'
+when TagIndex=	107	Then 'Carraige_VFD_trip_time'
+ when TagIndex=	108	Then 'Exit_conveyor_trip_time'
+ when TagIndex=	109	Then 'Pusher_mechenical_overload_time'
+when TagIndex=	111	Then 'Low_CLD_time'
+ when TagIndex=	112	Then 'Case_pickup_vacuum_fault_time'
+ when TagIndex=	113	Then 'Incomplete_layer_at_pickup_time'
+ when TagIndex=	114	Then 'Low_air_pressure_time'
+ when TagIndex=	116	Then 'Carriage_encoder_feedback_loss_time'
+ when TagIndex=	117	Then 'Arm_encoder_feedback_loss_time'
+ when TagIndex=	119	Then 'Pusher_position_zero_in_auto_time'
+ when TagIndex=	121	Then 'PandP_position_zero_in_auto_time'
+when TagIndex=	122	Then 'Pusher_index_malfunction_time'
+ when TagIndex=	124	Then 'PandP_index_index_malfunction_time'
+ when TagIndex=	126	Then 'Precol_index_malfunction_time'
+End as fault_time,
+[Val]
+
+FROM [DFOS_Local].[dbo].[FloatTable]
+where TagIndex in (62,102,103,104,105,106,107,108,109,111,112,113,114,116,117,119,121,122,124,126) and dateandtime between @Date and @Date2
+order by DateAndTime desc, Val desc

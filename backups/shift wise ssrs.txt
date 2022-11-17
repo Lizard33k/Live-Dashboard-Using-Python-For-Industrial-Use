@@ -1,0 +1,79 @@
+
+DECLARE @Dateshiftend varchar(80);
+DECLARE @Dateshiftstart varchar(80);
+
+  IF @shift='A'
+    BEGIN
+     SET @Dateshiftstart = convert(varchar(10),@PDate,23)+' 06:00:00.000';
+SET @Dateshiftend = convert(varchar(10),@PDate,23)+' 14:00:00.000';
+        PRINT @Dateshiftstart;
+PRINT @Dateshiftend
+    END
+	  IF @shift='B'
+    BEGIN
+	   SET @Dateshiftstart = convert(varchar(10),@PDate,23)+' 14:00:00.000';
+SET @Dateshiftend = convert(varchar(10),@PDate,23)+' 22:00:00.000';
+        PRINT @Dateshiftstart;
+PRINT @Dateshiftend
+    END
+
+ IF @shift='C'
+    BEGIN
+SET @Dateshiftstart = convert(varchar(10),@PDate,23)+' 22:00:00.000';
+SET @Dateshiftend = convert(varchar(11), dateadd(day,1, convert(varchar(10),@PDate,23)),23) +' 06:00:00.000';
+PRINT @Dateshiftstart;
+PRINT @Dateshiftend
+    END		 
+
+
+
+SELECT [DateAndTime],
+  
+ sum(case when TagIndex=0 Then Val end) as Stamper_Downstream_01_Stop,
+ sum(case when TagIndex=1 Then Val end) as Stamper_Downstream_02_Stop,
+ sum(case when TagIndex=2 Then Val end) as Stamper_Waiting_For_Upstream,
+ sum(case when TagIndex=3 Then Val end) as Stamper_Present_Speed,
+ sum(case when TagIndex=45 Then Val end) as Stamper_In_Run_mode,
+ sum(case when TagIndex=46 Then Val end) as Stamper_Stop_By_Push_Button,
+ sum(case when TagIndex=47 Then Val end) as Stamper_Under_Fault,
+ sum(case when TagIndex=49 Then Val end) as Stamper_output_A ,
+sum(case when TagIndex=50 Then Val end) as Stamper_output_B,
+
+sum(case when TagIndex=48 Then Val end) as Bosch_01_Running,
+sum(case when TagIndex=51 Then Val end) as Bosch_01_Waiting_For_Upstream ,
+sum(case when TagIndex=52 Then Val end) as Bosch_01_Downstream_Not_Ready ,
+sum(case when TagIndex=53 Then Val end) as Bosch_01_Stop_By_Push_Button ,
+sum(case when TagIndex=54 Then Val end) as Bosch_01_Actual_speed ,
+
+
+sum(case when TagIndex=65 Then Val end) as BOSCH_2_Waiting_Upstream ,
+sum(case when TagIndex=66 Then Val end) as BOSCH_2_Speed,
+sum(case when TagIndex=67 Then Val end) as BOSCH_2_Downstream_Waiting,
+sum(case when TagIndex=68 Then Val end) as BOSCH_2_Running,
+sum(case when TagIndex=69 Then Val end) as BOSCH_2_Manual_Stop_Time,
+
+sum(case when TagIndex=55 Then Val end) as CPM_1_Running ,
+sum(case when TagIndex=56 Then Val end) as CPM_1_Actual_Speed,
+sum(case when TagIndex=57 Then Val end) as FBC_Produced_01,
+sum(case when TagIndex=58 Then Val end) as CPM_1_Waiting_Upstream ,
+sum(case when TagIndex=59 Then Val end) as CPM_1_Blocked_Downstream,
+sum(case when TagIndex=60 Then Val end) as CPM_1_Under_Fault,
+sum(case when TagIndex=98 Then Val end) as CPM_1_Manual_Stop_Count,
+sum(case when TagIndex=101 Then Val end) as CPM_1_Manual_Stop_Time,
+sum(case when TagIndex=73 Then Val end) as CPM_01_Status,
+
+
+sum(case when TagIndex=77 Then Val end) as CPM_2_Running ,
+sum(case when TagIndex=82 Then Val end) as CPM_2_Actual_Speed,
+sum(case when TagIndex=75 Then Val end) as CPM_2_Waiting_Upstream ,
+sum(case when TagIndex=74 Then Val end) as CPM_2_Blocked_Downstream,
+sum(case when TagIndex=76 Then Val end) as CPM_2_Under_Fault,
+sum(case when TagIndex=99 Then Val end) as CPM_2_Manual_Stop_Count,
+sum(case when TagIndex=100 Then Val end) as CPM_2_Manual_Stop_Time,
+sum(case when TagIndex=74 Then Val end) as CPM_02_Blocked,
+sum(case when TagIndex=72 Then Val end) as FBC_Produced_02
+
+  FROM [DFOS_Local].[dbo].[FloatTable]
+  where dateandtime between @Dateshiftstart and @Dateshiftend
+  group by DateAndTime
+  order by DateAndTime desc
